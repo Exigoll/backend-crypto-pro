@@ -1,10 +1,15 @@
-import { SequelizeModule } from '@nestjs/sequelize';
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { SequelizeModule } from '@nestjs/sequelize';
+import config from 'config';
+
+import { AuthModule } from '@/modules/auth/auth.module';
+import { TokenModule } from '@/modules/token/token.module';
+import { User } from '@/modules/users/models/user.model';
+import { UsersModule } from '@/modules/users/users.module';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import config from './config';
 
 @Module({
   imports: [
@@ -24,10 +29,12 @@ import config from './config';
         database: configService.get('db_name'),
         synchronize: true,
         autoLoadModels: true,
-        models: [],
+        models: [User],
       }),
     }),
     UsersModule,
+    AuthModule,
+    TokenModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,8 +7,9 @@ import { AuthModule } from '@/modules/auth/auth.module';
 import { TokenModule } from '@/modules/token/token.module';
 import { User } from '@/modules/users/models/user.model';
 import { UsersModule } from '@/modules/users/users.module';
+import { Watchlist } from '@/modules/watchlist/models/watchlist.model';
+import { WatchlistModule } from '@/modules/watchlist/watchlist.module';
 
-import { WatchlistModule } from './../watchlist/watchlist.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -30,7 +31,7 @@ import { AppService } from './app.service';
         database: configService.get('db_name'),
         synchronize: true,
         autoLoadModels: true,
-        models: [User],
+        models: [User, Watchlist],
       }),
     }),
     UsersModule,

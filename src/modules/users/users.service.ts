@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
 
+import { AuthUserResponse } from '@/modules/auth/response/index';
+import { TokenService } from '@/modules/token/token.service';
 import { Watchlist } from '@/modules/watchlist/models/watchlist.model';
 
 import { CreateUserDTO, UpdateUserDTO } from './dto/index';
@@ -11,6 +13,7 @@ import { User } from './models/user.model';
 export class UsersService {
   constructor(
     @InjectModel(User) private readonly userRepository: typeof User,
+    private readonly tokenService: TokenService,
   ) {}
 
   async hashPassword(password: string): Promise<string> {
@@ -50,9 +53,9 @@ export class UsersService {
     }
   }
 
-  async publicUser(email: string): Promise<CreateUserDTO> {
+  async publicUser(email: string): Promise<AuthUserResponse> {
     try {
-      return this.userRepository.findOne({
+      const user = await this.userRepository.findOne({
         where: { email },
         attributes: { exclude: ['password'] },
         include: {
@@ -60,6 +63,8 @@ export class UsersService {
           required: false,
         },
       });
+      const token = await this.tokenService.generateJwtToken(user);
+      return { user, token };
     } catch (e) {
       throw new Error(e);
     }

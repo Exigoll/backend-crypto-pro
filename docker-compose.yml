@@ -1,21 +1,21 @@
-version: '3'
+version: '1'
 
 services:
   postgresql:
-    image: postgres
-    container_name: apples
+    image: crypto-pro
+    container_name: crypto-pro
     ports:
       - '5432:5432'
     environment:
       - POSTGRES_HOST=localhost
-      - POSTGRES_USER=lesson
-      - POSTGRES_PASSWORD=lesson
-      - POSTGRES_DATABASE=lesson
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DATABASE=crypto-pro
     command: postgres
     restart: always
 
   redis:
     image: redis:alpine3.14
-    container_name: redis-apples
+    container_name: redis-crypto-pro
     ports:
       - '6379-6379'

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
 
@@ -6,7 +6,9 @@ import { AuthUserResponse } from '@/modules/auth/response/index';
 import { TokenService } from '@/modules/token/token.service';
 import { Watchlist } from '@/modules/watchlist/models/watchlist.model';
 
-import { CreateUserDTO, UpdateUserDTO } from './dto/index';
+import { AppError } from '@/common/constants/errors';
+
+import { CreateUserDTO, UpdatePasswordDTO, UpdateUserDTO } from './dto';
 import { User } from './models/user.model';
 
 @Injectable()
@@ -28,6 +30,20 @@ export class UsersService {
     try {
       return this.userRepository.findOne({
         where: { email: email },
+        include: {
+          model: Watchlist,
+          required: false,
+        },
+      });
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async findUserById(id: number): Promise<User> {
+    try {
+      return this.userRepository.findOne({
+        where: { id },
         include: {
           model: Watchlist,
           required: false,
@@ -70,18 +86,33 @@ export class UsersService {
     }
   }
 
-  async updateUser(email: string, dto: UpdateUserDTO): Promise<UpdateUserDTO> {
+  async updateUser(userId: number, dto: UpdateUserDTO): Promise<UpdateUserDTO> {
     try {
-      await this.userRepository.update(dto, { where: { email } });
+      await this.userRepository.update(dto, { where: { id: userId } });
       return dto;
     } catch (e) {
       throw new Error(e);
     }
   }
 
-  async deleteUser(email: string): Promise<boolean> {
+  async updatePassword(userId: number, dto: UpdatePasswordDTO): Promise<any> {
     try {
-      await this.userRepository.destroy({ where: { email } });
+      const { password } = await this.findUserById(userId);
+      const currentPassword = await bcrypt.compare(dto.oldPassword, password);
+      if (!currentPassword) return new BadRequestException(AppError.WRONG_DATA);
+      const newPassword = await this.hashPassword(dto.newPassword);
+      const data = {
+        password: newPassword,
+      };
+      return this.userRepository.update(data, { where: { id: userId } });
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async deleteUser(id: number): Promise<boolean> {
+    try {
+      await this.userRepository.destroy({ where: { id } });
       return true;
     } catch (e) {
       throw new Error(e);

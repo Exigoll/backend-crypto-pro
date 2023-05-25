@@ -14,3 +14,29 @@ export class CreateAssetResponse {
   @IsString()
   assetId: string;
 }
+
+export class GetUserAssetsResponse {
+  @ApiProperty()
+  @IsNumber()
+  id: number;
+
+  @ApiProperty()
+  @IsNumber()
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  assetId: string;
+
+  @ApiProperty()
+  @IsString()
+  createAt: string;
+
+  @ApiProperty()
+  @IsString()
+  updateAt: string;
+
+  @ApiProperty()
+  @IsNumber()
+  user: number;
+}
